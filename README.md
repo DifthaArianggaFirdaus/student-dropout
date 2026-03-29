@@ -78,7 +78,7 @@ Untuk menjalankan aplikasi prediksi, gunakan perintah berikut:
 ```bash
 streamlit run prediction.py
 
-link Streamlit : 
+link Streamlit : https://student-dropout-as6ygb2danvpy8dtmxrctg.streamlit.app/
 
 
 ## Business Dashboard
