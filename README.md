@@ -74,7 +74,7 @@ jupyter notebook
 Buat environment baru:
 
 ```bash
-conda create --name student-dropout python=3.11
+conda create --name student-dropout python=3.12.7
 ```
 
 Aktifkan environment:
