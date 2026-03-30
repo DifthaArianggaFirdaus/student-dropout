@@ -8,7 +8,23 @@ st.set_page_config(
     layout="wide"
 )
 
+# =========================
+# KONFIGURASI
+# =========================
 MODEL_PATH = "student_dropout_brf_model.pkl"
+
+EXPECTED_FEATURES = [
+    "Curricular_units_2nd_sem_approved",
+    "Curricular_units_2nd_sem_grade",
+    "Curricular_units_1st_sem_approved",
+    "Curricular_units_1st_sem_grade",
+    "Tuition_fees_up_to_date",
+    "Debtor",
+    "Scholarship_holder",
+    "Age_at_enrollment",
+    "Application_mode",
+    "Course"
+]
 
 APPLICATION_MODE_OPTIONS = [
     "1st phase - general contingent",
@@ -61,9 +77,23 @@ HIGH_RISK_COURSES = [
 ]
 
 
+# =========================
+# FUNGSI UTILITAS
+# =========================
 @st.cache_resource
 def load_model_bundle(path: str):
     return joblib.load(path)
+
+
+def normalize_thresholds(bundle: dict):
+    medium_threshold = float(bundle.get("medium_threshold", 0.10))
+    high_threshold = float(bundle.get("high_threshold", 0.50))
+
+    # jaga supaya medium < high
+    if medium_threshold >= high_threshold:
+        medium_threshold = max(0.0, round(high_threshold * 0.7, 4))
+
+    return medium_threshold, high_threshold
 
 
 def classify_risk(score: float, medium_threshold: float, high_threshold: float) -> str:
@@ -159,7 +189,12 @@ def predict_dropout(
 
     result = input_df.copy()
     result["DropoutRiskScore"] = probabilities
+    result["GraduateProbability"] = 1 - probabilities
     result["PredictedDropout"] = predicted_label
+    result["PredictedOutcome"] = result["PredictedDropout"].map({
+        1: "Dropout",
+        0: "Graduate"
+    })
     result["RiskCategory"] = result["DropoutRiskScore"].apply(
         lambda x: classify_risk(x, medium_threshold, high_threshold)
     )
@@ -173,17 +208,25 @@ def predict_dropout(
 # =========================
 st.title("🎓 Student Dropout Risk Prediction")
 st.markdown(
-    "Aplikasi ini digunakan untuk memprediksi risiko dropout mahasiswa "
-    "berdasarkan model **Balanced Random Forest**."
+    "Aplikasi ini digunakan untuk mengestimasi risiko dropout mahasiswa "
+    "berdasarkan model **Balanced Random Forest** yang dilatih pada mahasiswa "
+    "dengan outcome akhir **Dropout** dan **Graduate**."
 )
 
 # load model
 try:
     model_bundle = load_model_bundle(MODEL_PATH)
     model = model_bundle["model"]
-    selected_features = model_bundle["selected_features"]
-    medium_threshold = float(model_bundle["medium_threshold"])
-    high_threshold = float(model_bundle["high_threshold"])
+    bundle_features = list(model_bundle["selected_features"])
+    medium_threshold, high_threshold = normalize_thresholds(model_bundle)
+
+    # pastikan fitur model konsisten dengan 10 fitur final
+    if set(bundle_features) != set(EXPECTED_FEATURES):
+        st.error("Fitur pada model bundle tidak sesuai dengan 10 fitur final.")
+        st.stop()
+
+    selected_features = EXPECTED_FEATURES.copy()
+
 except Exception as e:
     st.error(f"Gagal memuat model: {e}")
     st.stop()
@@ -191,6 +234,7 @@ except Exception as e:
 with st.sidebar:
     st.header("Informasi Model")
     st.write("**Algoritma:** Balanced Random Forest (Calibrated)")
+    st.write("**Target model:** Dropout vs Graduate")
     st.write(f"**Medium threshold:** {medium_threshold:.4f}")
     st.write(f"**High threshold:** {high_threshold:.4f}")
 
@@ -303,13 +347,15 @@ if submitted:
 
     st.subheader("Hasil Prediksi")
 
-    m1, m2, m3 = st.columns(3)
+    m1, m2, m3, m4 = st.columns(4)
     with m1:
         st.metric("Dropout Risk Score", f"{result['DropoutRiskScore']:.2%}")
     with m2:
-        st.metric("Risk Category", result["RiskCategory"])
+        st.metric("Graduate Probability", f"{result['GraduateProbability']:.2%}")
     with m3:
-        st.metric("Predicted Dropout", "Yes" if result["PredictedDropout"] == 1 else "No")
+        st.metric("Risk Category", result["RiskCategory"])
+    with m4:
+        st.metric("Predicted Outcome", result["PredictedOutcome"])
 
     if result["RiskCategory"] == "High Risk":
         st.error("Mahasiswa termasuk kategori High Risk.")

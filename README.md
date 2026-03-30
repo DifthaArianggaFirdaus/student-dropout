@@ -1,4 +1,4 @@
-# Proyek Akhir: Menyelesaikan Permasalahan Resiko Dropout
+# Proyek Akhir: Menyelesaikan Permasalahan Risiko Dropout
 
 ## Business Understanding
 
@@ -11,13 +11,9 @@ Melalui proyek ini, dilakukan analisis data mahasiswa untuk mengidentifikasi dis
 ### Permasalahan Bisnis
 
 1. Berapa jumlah dan persentase mahasiswa berdasarkan status **Dropout**, **Enrolled**, dan **Graduate** selama periode analisis?
-
 2. Faktor-faktor apa yang paling berkaitan dengan status dropout mahasiswa selama periode analisis?
-
 3. Program studi atau **course** mana yang paling berisiko mengalami dropout, dan berapa besar dropout rate-nya selama periode analisis?
-
 4. Variabel utama apa saja yang wajib dipantau institusi untuk menekan risiko dropout selama periode analisis?
-
 5. Bagaimana pendekatan berbasis data dapat membantu institusi dalam mendeteksi mahasiswa berisiko dropout lebih dini dan menentukan intervensi yang tepat?
 
 ### Cakupan Proyek
@@ -30,23 +26,85 @@ Melalui proyek ini, dilakukan analisis data mahasiswa untuk mengidentifikasi dis
 - Menyusun dashboard bisnis untuk monitoring kondisi mahasiswa.
 - Menyusun rekomendasi intervensi berbasis data untuk membantu institusi menekan risiko dropout.
 
-### Persiapan
+## Persiapan
 
-Sumber data: https://github.com/dicodingacademy/dicoding_dataset/blob/main/students_performance/data.csv
+Sumber data yang digunakan pada proyek ini berasal dari dataset performa mahasiswa yang disediakan oleh Dicoding.
 
-Setup environment:
+Sumber data:  
+https://github.com/dicodingacademy/dicoding_dataset/blob/main/students_performance/data.csv
 
+Proyek ini dijalankan menggunakan **Python 3.12.7**.
+
+### Menyiapkan Environment Proyek
+
+Pada proyek ini, environment disarankan dipisahkan menggunakan virtual environment agar dependency yang digunakan tidak bertabrakan dengan proyek lain.
+
+#### Opsi 1: Menggunakan Virtual Environment (venv)
+
+Buat virtual environment dengan perintah berikut:
+
+```bash
+python -m venv venv
 ```
-pip install -r requirements.txt
 
+Aktifkan virtual environment:
+
+```bash
+# Windows
+venv\Scripts\activate
+
+# Mac/Linux
+source venv/bin/activate
+```
+
+Install seluruh library yang dibutuhkan dari file `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
+Apabila ingin menjalankan notebook secara lokal, gunakan perintah berikut:
+
+```bash
+jupyter notebook
+```
+
+#### Opsi 2: Menggunakan Conda
+
+Buat environment baru:
+
+```bash
+conda create --name student-dropout python=3.11
+```
+
+Aktifkan environment:
+
+```bash
+conda activate student-dropout
+```
+
+Install dependency proyek:
+
+```bash
+pip install -r requirements.txt
+```
+
+Apabila ingin menjalankan notebook secara lokal, gunakan perintah berikut:
+
+```bash
+jupyter notebook
+```
 
 ## Menjalankan Sistem Prediksi Dropout Mahasiswa
 
-Model machine learning yang telah dibangun disimpan dalam file **`student_dropout_brf_model.pkl`** dan digunakan pada aplikasi lokal berbasis **Streamlit** yang terdapat pada file **`app.py`**.
+Model machine learning yang telah dibangun disimpan dalam file **`student_dropout_brf_model.pkl`** dan digunakan pada aplikasi berbasis **Streamlit** yang terdapat pada file **`prediction.py`**.
 
-File `prediction.py` berfungsi sebagai antarmuka prediksi, sedangkan file `student_dropout_brf_model.pkl` berisi model **Balanced Random Forest** yang telah dilatih sebelumnya. Aplikasi ini digunakan untuk membantu memprediksi kemungkinan seorang mahasiswa mengalami dropout berdasarkan beberapa variabel utama yang paling relevan.
+File **`prediction.py`** berfungsi sebagai antarmuka prediksi, sedangkan file **`student_dropout_brf_model.pkl`** berisi model **Balanced Random Forest (Calibrated)** yang telah dilatih sebelumnya. Aplikasi ini digunakan untuk membantu memprediksi kemungkinan seorang mahasiswa mengalami dropout berdasarkan beberapa variabel utama yang paling relevan.
+
+Model dilatih menggunakan data dengan status akhir **Dropout** dan **Graduate**. Data dengan status **Enrolled** tidak digunakan pada tahap training, tetapi digunakan pada tahap implementasi untuk melakukan scoring risiko dropout sebagai bagian dari **early warning system**.
 
 ### Variabel Input Model
+
 Model prediksi pada `prediction.py` menggunakan variabel berikut:
 
 - `Curricular_units_2nd_sem_approved`
@@ -61,103 +119,165 @@ Model prediksi pada `prediction.py` menggunakan variabel berikut:
 - `Course`
 
 ### Cara Kerja Aplikasi
+
 Aplikasi Streamlit pada file `prediction.py` bekerja dengan langkah berikut:
 
 1. Memuat model dari file **`student_dropout_brf_model.pkl`**
-2. Menerima input data mahasiswa melalui form Streamlit
-3. Membentuk data input sesuai struktur fitur model
-4. Menghasilkan:
-   - prediksi dropout
-   - skor risiko dropout
-   - kategori risiko (`Low Risk`, `Medium Risk`, `High Risk`)
-   - rekomendasi intervensi
+2. Memeriksa konsistensi fitur input dengan fitur yang digunakan model
+3. Menerima input data mahasiswa melalui form Streamlit
+4. Menghitung probabilitas risiko dropout
+5. Menghasilkan:
+   - `Dropout Risk Score`
+   - `Graduate Probability`
+   - `Risk Category`
+   - `Predicted Outcome`
+   - `Recommended Intervention`
 
 ### Menjalankan Aplikasi Secara Lokal
+
 Untuk menjalankan aplikasi prediksi, gunakan perintah berikut:
 
 ```bash
 streamlit run prediction.py
+```
 
-link Streamlit : https://student-dropout-as6ygb2danvpy8dtmxrctg.streamlit.app/
+Link Streamlit:  
+https://student-dropout-as6ygb2danvpy8dtmxrctg.streamlit.app/
 
+## 📊 Business Dashboard
 
-## Business Dashboard
+Business dashboard dibuat untuk membantu institusi memantau kondisi dropout mahasiswa secara lebih cepat, terstruktur, dan mudah dipahami. Dashboard ini berfungsi sebagai alat monitoring serta pendukung pengambilan keputusan berbasis data.
 
-Business dashboard dibuat untuk membantu institusi memantau kondisi dropout mahasiswa secara lebih cepat, terstruktur, dan mudah dipahami. Dashboard ini dirancang sebagai alat monitoring dan pendukung pengambilan keputusan berbasis data.
+Dashboard dibagi ke dalam beberapa tab utama berikut:
 
-Dashboard dibagi ke dalam beberapa tab utama.
+---
 
-Tab 1 — Gambaran Umum Status Mahasiswa
-Tab ini menampilkan distribusi mahasiswa berdasarkan status Dropout, Enrolled, dan Graduate, baik dalam bentuk jumlah maupun persentase. Tab ini membantu institusi memahami kondisi umum mahasiswa selama periode analisis.
+### 🔹 Tab 1 — Gambaran Umum Status Mahasiswa
 
-Tab 2 — Faktor-Faktor Utama yang Berkaitan dengan Dropout
-Tab ini menampilkan faktor-faktor utama yang berkaitan dengan dropout, terutama pada aspek akademik dan administratif, seperti:
-- jumlah mata kuliah yang lulus pada semester 1 dan 2,
-- nilai semester 1 dan 2,
-- status pembayaran biaya kuliah.
-Tab ini membantu institusi mengidentifikasi variabel yang paling berkontribusi terhadap risiko dropout.
+Tab ini menampilkan distribusi mahasiswa berdasarkan status **Dropout**, **Enrolled**, dan **Graduate**, baik dalam bentuk jumlah maupun persentase.
 
-Tab 3 — Course dengan Risiko Dropout Tertinggi
-Tab ini menampilkan program studi atau course dengan dropout rate tertinggi. Visualisasi ini membantu institusi memahami bahwa risiko dropout tidak tersebar merata, tetapi lebih terkonsentrasi pada beberapa program studi tertentu.
+**Insight utama:**
+- Memberikan gambaran kondisi umum mahasiswa
+- Menunjukkan tingkat dropout secara keseluruhan
+- Menjadi indikator awal apakah dropout merupakan masalah signifikan
 
-Tab 4 — Variabel Prioritas untuk Monitoring
-Tab ini menampilkan lima indikator utama yang wajib dipantau institusi, yaitu:
-- CU2_Approved_Group
-- Tuition_fees_up_to_date
-- Course
-- CU2_Grade_Group
-- CU1_Approved_Group
-Tab ini membantu institusi memfokuskan perhatian pada kelompok mahasiswa yang paling rentan mengalami dropout.
+---
 
-Tab 5 — Early Warning Mahasiswa Enrolled
-Tab ini menampilkan hasil pendekatan berbasis data melalui model prediksi dropout. Pada tab ini ditampilkan:
-- distribusi kategori risiko mahasiswa enrolled
-- jumlah mahasiswa high risk
-- course dengan jumlah high risk enrolled terbanyak
-- distribusi rekomendasi intervensi
-Tab ini membantu institusi menentukan prioritas intervensi secara lebih objektif dan terarah.
+### 🔹 Tab 2 — Analisis Faktor-Faktor Dropout
 
+Tab ini menampilkan faktor-faktor utama yang berkaitan dengan dropout, terutama dari sisi akademik dan administratif.
+
+**Variabel yang dianalisis:**
+- Jumlah mata kuliah lulus semester 1 dan 2  
+- Nilai semester 1 dan 2  
+- Status pembayaran biaya kuliah  
+- Program studi (**course**)  
+
+**Insight utama:**
+- Performa akademik (terutama semester 2) sangat berpengaruh terhadap dropout  
+- Faktor finansial menjadi salah satu penyebab utama  
+- Risiko dropout berbeda pada tiap program studi  
+
+---
+
+### 🔹 Tab 3 — Course dengan Risiko Dropout Tertinggi
+
+Tab ini menampilkan program studi dengan tingkat dropout tertinggi berdasarkan **dropout rate**.
+
+**Insight utama:**
+- Risiko dropout tidak merata di semua program studi  
+- Beberapa course memiliki tingkat risiko jauh lebih tinggi  
+- Membantu institusi menentukan prioritas evaluasi program studi  
+
+---
+
+### 🔹 Tab 4 — Variabel Prioritas untuk Monitoring
+
+Tab ini menampilkan lima indikator utama yang perlu dipantau secara rutin oleh institusi:
+
+- `CU2_Approved_Group`  
+- `Tuition_fees_up_to_date`  
+- `Course`  
+- `CU2_Grade_Group`  
+- `CU1_Approved_Group`  
+
+**Insight utama:**
+- Fokus pada variabel paling berpengaruh  
+- Membantu monitoring lebih efisien  
+- Memudahkan identifikasi mahasiswa berisiko tinggi  
+
+---
+
+### 🔹 Tab 5 — Early Warning Mahasiswa Enrolled
+
+Tab ini menampilkan hasil prediksi model machine learning untuk mendeteksi risiko dropout lebih dini, khususnya pada mahasiswa yang masih **enrolled**.
+
+**Informasi yang ditampilkan:**
+- Distribusi kategori risiko (**Low Risk, Medium Risk, High Risk**)  
+- Jumlah mahasiswa **High Risk**  
+- Course dengan jumlah mahasiswa High Risk terbanyak  
+- Rekomendasi intervensi  
+
+**Insight utama:**
+- Mengidentifikasi mahasiswa berisiko sebelum dropout terjadi  
+- Membantu menentukan prioritas intervensi  
+- Mendukung pengambilan keputusan berbasis data  
+
+---
+
+## 🎯 Kesimpulan Dashboard
+
+Dashboard ini memungkinkan institusi untuk:
+- Memahami kondisi dropout secara menyeluruh  
+- Mengidentifikasi faktor utama penyebab dropout  
+- Menentukan program studi dengan risiko tinggi  
+- Memantau variabel penting secara terfokus  
+- Mengimplementasikan sistem **early warning** berbasis machine learning  
 **Akses Dashboard Metabase**  
 Email: `root@mail.com`  
-Password: `root123`
-nama : dashboard_final_proyek_dicoding
-
+Password: `root123`  
+Nama dashboard: `dashboard_final_proyek_dicoding`
 
 ## Conclusion
 
-Berdasarkan hasil analisis dan dashboard yang telah dibuat, institusi memiliki 4.424 mahasiswa, yang terdiri dari 2.209 mahasiswa berstatus Graduate, 1.421 mahasiswa berstatus Dropout, dan 794 mahasiswa berstatus Enrolled. Hasil ini menunjukkan bahwa dropout merupakan isu yang cukup signifikan dan perlu mendapat perhatian serius.
+Berdasarkan hasil analisis dan dashboard yang telah dibuat, institusi memiliki 4.424 mahasiswa, yang terdiri dari 2.209 mahasiswa berstatus **Graduate**, 1.421 mahasiswa berstatus **Dropout**, dan 794 mahasiswa berstatus **Enrolled**. Hasil ini menunjukkan bahwa dropout merupakan isu yang cukup signifikan dan perlu mendapat perhatian serius.
 
-Faktor yang paling berkaitan dengan dropout adalah jumlah mata kuliah yang lulus pada semester 2, status pembayaran biaya kuliah, course, nilai semester 2, dan jumlah mata kuliah lulus pada semester 1. Mahasiswa yang tidak lulus mata kuliah pada semester 2 menunjukkan dropout rate yang sangat tinggi, demikian juga mahasiswa yang pembayaran biaya kuliahnya tidak up to date.
+Faktor yang paling berkaitan dengan dropout adalah jumlah mata kuliah yang lulus pada semester 2, status pembayaran biaya kuliah, **course**, nilai semester 2, dan jumlah mata kuliah lulus pada semester 1. Mahasiswa yang tidak lulus mata kuliah pada semester 2 menunjukkan dropout rate yang sangat tinggi, demikian juga mahasiswa yang pembayaran biaya kuliahnya tidak up to date.
 
-Dari sisi program studi, beberapa course memiliki dropout rate yang jauh lebih tinggi dibanding course lainnya, seperti Biofuel Production Technologies, Equinculture, Informatics Engineering, Management (evening attendance), dan Basic Education. Hal ini menunjukkan bahwa risiko dropout tidak tersebar merata, tetapi terkonsentrasi pada kelompok tertentu.
+Dari sisi program studi, beberapa **course** memiliki dropout rate yang jauh lebih tinggi dibanding course lainnya, seperti **Biofuel Production Technologies**, **Equinculture**, **Informatics Engineering**, **Management (evening attendance)**, dan **Basic Education**. Hal ini menunjukkan bahwa risiko dropout tidak tersebar merata, tetapi terkonsentrasi pada kelompok tertentu.
 
-Hasil modeling juga menunjukkan bahwa pendekatan berbasis data dapat membantu institusi mendeteksi mahasiswa berisiko lebih dini. Model prediksi mampu mengelompokkan mahasiswa ke dalam kategori Low Risk, Medium Risk, dan High Risk. Pada mahasiswa yang masih enrolled, terdapat kelompok high risk yang perlu diprioritaskan untuk intervensi lebih awal.
+Hasil modeling menunjukkan bahwa model **Balanced Random Forest** memiliki performa yang sangat baik untuk memprediksi risiko dropout mahasiswa. Adapun hasil evaluasi model adalah sebagai berikut:
+
+- **Accuracy:** 0.8333
+- **Precision:** 0.7209
+- **Recall:** 0.9366
+- **F1-Score:** 0.8147
+- **ROC-AUC:** 0.9606
+- **PR-AUC:** 0.9554
+- **Balanced Accuracy:** 0.8518
+
+Nilai **ROC-AUC** dan **PR-AUC** yang tinggi menunjukkan bahwa model memiliki kemampuan yang sangat baik dalam membedakan mahasiswa yang berpotensi dropout dan graduate. Nilai **recall** yang tinggi menunjukkan bahwa model sangat sensitif dalam mendeteksi mahasiswa yang berisiko dropout, sehingga sesuai digunakan sebagai sistem **early warning**.
+
+Model tidak menggunakan threshold default 0.5, tetapi menggunakan threshold optimal sebesar **0.1479** yang diperoleh dari optimasi **F2-score**. Pendekatan ini dipilih agar model lebih fokus dalam meningkatkan recall sehingga lebih banyak mahasiswa berisiko dropout dapat dideteksi lebih awal, meskipun terdapat trade-off pada precision.
+
+Berdasarkan hasil **feature importance**, faktor yang paling berpengaruh terhadap risiko dropout adalah **jumlah mata kuliah yang lulus pada semester 2** (`Curricular_units_2nd_sem_approved`) dengan kontribusi sebesar **53,90%**. Faktor ini menjadi penentu paling dominan dibandingkan variabel lainnya. Selanjutnya, faktor yang juga memiliki pengaruh cukup besar adalah **program studi** (`Course`) sebesar **12,61%**, **status pembayaran biaya kuliah** (`Tuition_fees_up_to_date`) sebesar **11,24%**, **nilai semester 2** (`Curricular_units_2nd_sem_grade`) sebesar **6,65%**, dan **jumlah mata kuliah lulus semester 1** (`Curricular_units_1st_sem_approved`) sebesar **6,14%**.
+Temuan ini menunjukkan bahwa faktor akademik dan finansial merupakan penentu utama risiko dropout. Mahasiswa dengan jumlah mata kuliah lulus yang rendah, nilai akademik yang rendah, serta status pembayaran yang tidak lancar memiliki kemungkinan dropout yang lebih tinggi dibandingkan mahasiswa lainnya.
 
 Secara keseluruhan, proyek ini menunjukkan bahwa kombinasi antara exploratory data analysis, dashboard monitoring, dan model prediksi dropout dapat membantu institusi memahami sumber risiko dropout, memantau kelompok mahasiswa yang paling rentan, serta mendukung keputusan intervensi secara lebih objektif, cepat, dan tepat sasaran.
 
-### Rekomendasi Action Items (Optional)
-
 ## Rekomendasi Action Items
 
-1. Perkuat monitoring akademik sejak semester awal
+1. **Perkuat monitoring akademik sejak semester awal**  
+   Mahasiswa dengan jumlah mata kuliah lulus yang rendah dan nilai semester yang rendah menunjukkan risiko dropout yang sangat tinggi. Institusi perlu memperkuat monitoring akademik sejak semester awal melalui tutoring, remedial, dan pendampingan belajar.
 
-Mahasiswa dengan jumlah mata kuliah lulus yang rendah dan nilai semester yang rendah menunjukkan risiko dropout yang sangat tinggi. Institusi perlu memperkuat monitoring akademik sejak semester awal melalui tutoring, remedial, dan pendampingan belajar.
+2. **Prioritaskan intervensi pada mahasiswa dengan masalah pembayaran**  
+   Mahasiswa yang biaya kuliahnya tidak up to date memiliki dropout rate sangat tinggi. Oleh karena itu, institusi perlu memprioritaskan intervensi finansial dan administrasi pada kelompok ini.
 
-2. Prioritaskan intervensi pada mahasiswa dengan masalah pembayaran
+3. **Fokuskan perhatian pada course dengan dropout rate tertinggi**  
+   Program studi dengan dropout rate tinggi perlu mendapatkan perhatian khusus melalui evaluasi kurikulum, pendampingan akademik, serta monitoring mahasiswa yang lebih intensif.
 
-Mahasiswa yang biaya kuliahnya tidak up to date memiliki dropout rate sangat tinggi. Oleh karena itu, institusi perlu memprioritaskan intervensi finansial dan administrasi pada kelompok ini.
+4. **Gunakan dashboard sebagai alat monitoring rutin**  
+   Dashboard yang telah dibuat perlu digunakan secara berkala oleh institusi untuk memantau perubahan risiko dropout, terutama pada variabel-variabel prioritas.
 
-3. Fokuskan perhatian pada course dengan dropout rate tertinggi
-
-Program studi dengan dropout rate tinggi perlu mendapatkan perhatian khusus melalui evaluasi kurikulum, pendampingan akademik, serta monitoring mahasiswa yang lebih intensif.
-
-4. Gunakan dashboard sebagai alat monitoring rutin
-
-Dashboard yang telah dibuat perlu digunakan secara berkala oleh institusi untuk memantau perubahan risiko dropout, terutama pada variabel-variabel prioritas.
-
-5. Gunakan hasil model sebagai early warning system
-
-Model prediksi dropout yang telah dibangun dapat digunakan sebagai sistem peringatan dini untuk memprioritaskan mahasiswa high risk agar mendapatkan intervensi lebih cepat sebelum benar-benar dropout.
-
-
-
+5. **Gunakan hasil model sebagai early warning system**  
+   Model prediksi dropout yang telah dibangun dapat digunakan sebagai sistem peringatan dini untuk memprioritaskan mahasiswa high risk agar mendapatkan intervensi lebih cepat sebelum benar-benar dropout.
