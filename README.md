@@ -142,7 +142,7 @@ streamlit run prediction.py
 ```
 
 Link Streamlit:  
-https://student-dropout-as6ygb2danvpy8dtmxrctg.streamlit.app/
+https://student-dropout-zfbucn53jbmmj6wfjyhbfa.streamlit.app/
 
 ## 📊 Business Dashboard
 
